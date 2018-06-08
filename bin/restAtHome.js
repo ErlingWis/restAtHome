@@ -4,10 +4,12 @@ let helmet = require('helmet')
 let endpoints = require('./endpoints')
 let lib = require('./lib')
 let morgan = require('morgan')
+let fs = require('fs')
+
+
 
 app.use(helmet())
 app.use(morgan('tiny'))
-
 
 initEndpoints = (endpoints, application, handlers) => {
   
@@ -107,5 +109,23 @@ collectiveHandler = {
   }
 }
 
-initEndpoints(endpoints, app, collectiveHandler)
-app.listen(3000,() => console.log('running'))
+fs.readFile('/etc/restAtHome/config', (err, file) => {
+  
+  if(err) throw err
+  
+  else{
+    
+    let config = JSON.parse(file)
+    
+    initEndpoints(endpoints, app, collectiveHandler)
+    
+    app.listen(config.api.port,() => {
+      console.log('running with config:')
+      console.log(config)
+      
+    })
+  
+  }
+
+})
+
