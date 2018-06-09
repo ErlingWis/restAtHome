@@ -1,0 +1,97 @@
+#!/usr/bin/env node
+
+let program = require('commander')
+let colors = require('colors')
+let db = require('./db')
+let lib = require('./lib')
+let config = lib.parseConfig()
+
+
+// ADD
+program
+  .command('add <path> <resource>')
+  .description('Adds a Path to the API')
+  .option('--post [optional]','Adds POST requests')
+  .option('--get [optional]','Adds GET requests')
+  .option('--put [optional]','Adds PUT requests')
+  .option('--delete [optional]','Adds DELETE requests')
+  .option('-a, --all [optional]','Adds all methods')
+  .action( async (path,resource, opts) => {
+  
+    console.log(`Path ${path}`)
+    console.log(`Resource ${resource}`)
+    console.log(`POST ${ opts.post || opts.all ? '✓'.green : '✖'.red }`)
+    console.log(`GET ${ opts.get || opts.all ? '✓'.green : '✖'.red }`)
+    console.log(`PUT ${ opts.put || opts.all ? '✓'.green : '✖'.red }`)
+    console.log(`DELETE ${ opts.delete || opts.all ? '✓'.green : '✖'.red }`)
+    
+    methods = []
+
+    if(opts.all) methods = ['GET', 'PUT', 'POST', 'DELETE']
+    else{
+      if(opts.get) methods.push('GET')
+      if(opts.post) methods.push('POST')
+      if(opts.put) methods.push('PUT')
+      if(opts.delete) methods.push('DELETE')
+    }
+    
+    let endpoint = {
+      _id: path,
+      resource: resource,
+      methods: methods
+    }
+    
+    await db.connect(config.database)
+    db.get().collection('restAtHome').insert(endpoint)
+    db.close()
+    console.log('Added. API needs a restart.')
+  })
+
+//LIST
+program
+  .command('list')
+  .description('Lists all Paths')
+  .action( async () => {
+
+    await db.connect(config.database)
+    db.get().collection('restAtHome').find().toArray((err, paths) => {
+      
+      if(err) throw err
+      
+      for(path of paths){
+        console.log(`${path._id.green} ${path.resource.blue} ${path.methods.join(' ')}`)
+      }
+      db.close()
+    })
+
+  })
+
+//DELETE
+program
+  .command('delete <path>')
+  .description('Deletes a Path from the derp')
+  .option('-r, --recursive','Deletes all endpoints under a path')
+  .option('-w, --wipe','Wipes the collections from the database')
+  .action( async (path,opts) => {
+    
+    await db.connect(config.database)
+    
+    var query
+    if(opts.recursive){
+      
+      query = { _id: { 
+          $regex: new RegExp(`${path}[\S]*`) 
+        } }
+
+      console.log('removing recursivly')
+    }
+    else query = {_id : path }
+
+    db.get().collection('restAtHome').remove(query, (err) =>{
+      if(err) throw err
+      console.log(`${path} deleted. API needs a restart.`)
+      db.close()
+    })
+  })
+
+program.parse(process.argv)

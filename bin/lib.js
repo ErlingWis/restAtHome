@@ -1,9 +1,13 @@
+let db = require('./db')
+
 findOne = (collection, id) => {
   
   return new Promise((resolve, reject) => {
     
     db.get().collection(collection).findOne({_id: id}, (err, result) => {
       
+      
+
       if(err) reject(err)
       
       else resolve(result)
@@ -13,12 +17,12 @@ findOne = (collection, id) => {
   })
   
 }
-
+ 
 find = (collection) => {
   
   return new Promise((resolve, reject) => {
     
-    db.get().collection(collection).find({},(err, result) => {
+    db.get().collection(collection).find({}).toArray((err, result) => {
       
       if(err) reject(err)
       
@@ -34,10 +38,10 @@ create = (collection, object) => {
   
   return new Promise( (resolve, reject) => {
   
-    db.get().collection(collection).insert(object,(err)=>{
+    db.get().collection(collection).insert(object, (err)=>{
+
       
       if(err) reject(err)
-      
       else resolve(object)
       
     })
@@ -88,7 +92,7 @@ remove = (collection, id) => {
 }
 
 exports.get = (resource, id) => {
-  console.log(resource, id)
+  
   if(id) return findOne(resource, id)
 
   else return find(resource)
@@ -96,6 +100,10 @@ exports.get = (resource, id) => {
 }
 
 exports.post = (resource, document) => create(resource, document)
-exports.put = (resource, document, id) => update(resouce, document, id)
-exports.delete = (resource, id) => remove(resouce, id)
+exports.put = (resource, document, id) => update(resource, document, id)
+exports.delete = (resource, id) => remove(resource, id)
 
+exports.parseConfig = () => {
+  let raw = require('fs').readFileSync('/etc/restAtHome/config')
+  return JSON.parse(raw)
+}

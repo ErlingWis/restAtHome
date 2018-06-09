@@ -5,8 +5,8 @@ After=network.target
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/opt/restAtHome/bin
-ExecStart=/usr/local/lib/nodejs/node-v8.11.2/bin/node /opt/restAtHome/bin/restAtHome.js
+WorkingDirectory=/opt/restAtHome/
+ExecStart=/usr/bin/node /opt/restAtHome/restAtHome.js
 Restart=on-failure
 
 [Install]
