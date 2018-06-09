@@ -8,7 +8,6 @@ GUI controllet JSON based REST API for simple projects.
 
 [MongoDB](https://www.mongodb.com/)
 
-[Bulma](https://bulma.io/)
 ## Install
 
 by cURL
@@ -21,16 +20,81 @@ by wget
 `sh -c "$(wget https://raw.githubusercontent.com/ErlingWis/restAtHome/master/install/install.sh -O -)"`
 
 ## Usage
+### start and stop
 
-By default the API will be accessible on port `3000` and the GUI on port `25000`.
+The API can be controlled with systemd as a service
+```
+# Start API 
+systemctl start restAtHome 
 
-Configuring port numbers can be done in the config files located in `/etc/restAtHome`
+# Stop API
+systemctl stop restAtHome
 
-To create a new endpoint for your API, simply click the **Create endpoint** button.
+# Restart API
+systemctl restart restAtHome
 
-After you're done creating endpoints, go back to the homepage and click the giant **RESTART API** button.
+# Automatically start at reboot
+systemctl enable restAtHome
 
-Now you can push, pull, edit and delete items in your API by executing simple HTTP commands!
+# remove automatic start at reboot
+systemctl disable restAtHome
+
+# check status
+systemctl status restAtHome
+```
+### configure ports and database information
+By default the API will be accessible on port `3000`.
+
+Configuring the port number and database configuration can be done in the config file located in `/etc/restAtHome`
+
+
+
+### configure API
+To configure the API use the restCli tool.
+
+The tool supports the following commands:
+#### add
+```
+  Usage: add [options] <path> <resource>
+
+  Adds a Path to the API
+
+  Options:
+
+    --post [optional]     Adds POST requests
+    --get [optional]      Adds GET requests
+    --put [optional]      Adds PUT requests
+    --delete [optional]   Adds DELETE requests
+    -a, --all [optional]  Adds all methods
+    -h, --help            output usage information
+```
+#### list
+```
+  Usage: list [options]
+
+  Lists all Paths
+
+  Options:
+
+    -h, --help  output usage information
+```
+#### delete
+```
+  Usage: delete [options] <path>
+
+  Deletes a Path from the derp
+
+  Options:
+
+    -r, --recursive  Deletes all endpoints under a path
+    -w, --wipe       Wipes the collections from the database
+    -h, --help       output usage information
+```
+#### EXAMPLE
+`restCli add /car/toyota toyota -a`
+
+adds the following endpoint to your API `<ip|hostname>:3000/car/toyota` with full CRUD functionality.
+
 ### Example with json file and curl
 **car.json**
 ```
