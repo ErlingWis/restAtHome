@@ -1,6 +1,6 @@
 # restAtHome
 
-GUI controllet JSON based REST API for simple projects.
+CLI configurable JSON based REST API for simple projects.
 
 **Powered by**
 
