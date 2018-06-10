@@ -1,6 +1,6 @@
 # restAtHome
 
-CLI configurable JSON based REST API for simple projects.
+simple CLI configurable JSON based REST API for when you just need to store some JSON resource in a database.
 
 **Powered by**
 
@@ -22,23 +22,41 @@ by wget
 ## Usage
 ### fast
 ```
-$ restCli add /weather weather -a
+$ restCli add /car licensePlate -a
 $ sudo systemctl enable restAtHome 
 $ sudo systemctl start restAtHome
 ```
-now you can post some weather reports in JSON to your API and access them again.
+post a car object in JSON to your API.
 ```BASH
 curl -X POST \
-localhost:3000/weather \
+localhost:3000/car \
 -H 'content-type: application/json' \
--d '{\
-"_id":"2018/05/06T14:51:10.401",\
-"temperature":24,\
-"unit":"celcius"\
-}'
+-d '{"licensePlate":"EK12345","color":"blue","model":"Tesla"}'
+```
+get all
+
+`curl localhost:3000/car`
+
+get one by identifier
+
+`curl localhost:3000/car/EK12345`
+
+update existing item
+
+```BASH
+curl -X PUT \
+localhost:3000/car/EK12345 \
+-H 'content-type: application/json' \
+-d '{"color":"red"}'
 ```
 
-`curl localhost:3000/weather`
+delete item
+
+```BASH
+curl -X DELETE \
+localhost:3000/car/EK12345
+```
+
 ### start and stop
 
 The API can be controlled with systemd as a service
@@ -74,7 +92,7 @@ To configure the API use the restCli tool.
 The tool supports the following commands:
 #### add
 ```
-  Usage: add [options] <path> <resource>
+  Usage: add [options] <path> <identifier>
 
   Adds a Path to the API
 
@@ -106,13 +124,13 @@ The tool supports the following commands:
   Options:
 
     -r, --recursive  Deletes all endpoints under a path
-    -w, --wipe       Wipes the collections from the database
     -h, --help       output usage information
+
 ```
 #### EXAMPLE
-`restCli add /car/toyota toyota -a`
+`restCli add /weather date -a`
 
-adds the following endpoint to your API `<ip|hostname>:3000/car/toyota` with full CRUD functionality.
+adds the following endpoint to your API `<ip|hostname>:3000/weather` with full CRUD functionality.
 
 ### Example with json file and curl
 **car.json**
@@ -138,5 +156,5 @@ localhost:3000/car \
 Field | Value
 --- | ---
 path | The path your endpoint can be reached at, inputting `/car` here will make an endpoint accessible at `<hostname>:3000/car`
-resource | name of the resource you want to store. For our `/car` endpoint, a natural choice would be `car`, for an endpoint called `/car/toyota` a good choice would be `toyota`
+identifier | The identifing field for selecting unique documents. This field needs unique values. For our `/car` endpoint, a natural choice would be `licensePlate`, for an endpoint called `/computer` an identifier could be `ip`
 methods | Which methods should be allowed on the endpoint.<ul><li>GET allows both a clean `GET /car` for retrieving all documents available **AND** single documents by `GET /car/:ID`</li><li>POST allows creating documents at `POST /car`</li><li>PUT allows editing documents at `PUT /car/:ID`</li><li>DELETE allows deletion of documents at `DELETE /car/:ID`</li>
