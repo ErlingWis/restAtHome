@@ -21,6 +21,8 @@ start = async () => {
     
     controllers.initEndpoints(endpoints, app, controllers.handlers)
     
+    if(config.api.cors === true) app.use(require('cors')()) 
+
     app.listen(config.api.port)
     
   } catch(error) {
