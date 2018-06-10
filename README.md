@@ -1,6 +1,6 @@
 # restAtHome
 
-CLI configurable JSON based REST API for simple projects.
+simple CLI configurable JSON based REST API. For when you just need to store some JSON in a database.
 
 **Powered by**
 
