@@ -8,7 +8,7 @@ let controllers = require('./controllers')
 app.use(require('helmet')())
 app.use(require('morgan')('tiny'))
 app.use(require('body-parser').json())
-
+//app.use('/', controllers.rootController)
 
 start = async () => {
   
@@ -22,7 +22,7 @@ start = async () => {
     controllers.initEndpoints(endpoints, app, controllers.handlers)
     
     app.listen(config.api.port)
-
+    
   } catch(error) {
 
     console.log(error)

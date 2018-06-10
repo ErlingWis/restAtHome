@@ -9,17 +9,17 @@ let config = lib.parseConfig()
 
 // ADD
 program
-  .command('add <path> <resource>')
+  .command('add <path> <identifier>')
   .description('Adds a Path to the API')
   .option('--post [optional]','Adds POST requests')
   .option('--get [optional]','Adds GET requests')
   .option('--put [optional]','Adds PUT requests')
   .option('--delete [optional]','Adds DELETE requests')
   .option('-a, --all [optional]','Adds all methods')
-  .action( async (path,resource, opts) => {
+  .action( async (path, identifier, opts) => {
   
     console.log(`Path ${path}`)
-    console.log(`Resource ${resource}`)
+    console.log(`Identifier ${identifier}`)
     console.log(`POST ${ opts.post || opts.all ? '✓'.green : '✖'.red }`)
     console.log(`GET ${ opts.get || opts.all ? '✓'.green : '✖'.red }`)
     console.log(`PUT ${ opts.put || opts.all ? '✓'.green : '✖'.red }`)
@@ -28,21 +28,25 @@ program
     methods = []
 
     if(opts.all) methods = ['GET', 'PUT', 'POST', 'DELETE']
+    
     else{
       if(opts.get) methods.push('GET')
       if(opts.post) methods.push('POST')
       if(opts.put) methods.push('PUT')
       if(opts.delete) methods.push('DELETE')
     }
+
+    if(path.endsWith('/')) path = path.substring(0, path.length - 1)
     
     let endpoint = {
       _id: path,
-      resource: resource,
+      identifier: identifier,
       methods: methods
     }
     
     await db.connect(config.database)
     db.get().collection('restAtHome').insert(endpoint)
+    db.get().collection(lib.urlToCollection(path)).createIndex( identifier, {unique: true} )
     db.close()
     console.log('Added. API needs a restart.')
   })
@@ -54,14 +58,16 @@ program
   .action( async () => {
 
     await db.connect(config.database)
-    db.get().collection('restAtHome').find().toArray((err, paths) => {
+    db.get().collection('restAtHome').find({}).toArray((err, paths) => {
       
       if(err) throw err
       
       for(path of paths){
-        console.log(`${path._id.green} ${path.resource.blue} ${path.methods.join(' ')}`)
+        console.log(`${path._id.green} ${path.identifier.blue} ${path.methods.join(' ')}`)
       }
+    
       db.close()
+    
     })
 
   })
@@ -70,8 +76,8 @@ program
 program
   .command('delete <path>')
   .description('Deletes a Path from the derp')
-  .option('-r, --recursive','Deletes all endpoints under a path')
-  .option('-w, --wipe','Wipes the collections from the database')
+  .option('-r, --recursive', 'Deletes all endpoints under a path')
+  //.option('-w, --wipe', 'Wipes the collections from the database')
   .action( async (path,opts) => {
     
     await db.connect(config.database)
@@ -80,10 +86,11 @@ program
     if(opts.recursive){
       
       query = { _id: { 
-          $regex: new RegExp(`${path}[\S]*`) 
+          $regex: new RegExp(`^${path}[\S]*`) 
         } }
 
       console.log('removing recursivly')
+    
     }
     else query = {_id : path }
 
@@ -92,6 +99,7 @@ program
       console.log(`${path} deleted. API needs a restart.`)
       db.close()
     })
+
   })
 
 program.parse(process.argv)

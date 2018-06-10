@@ -3,11 +3,17 @@ let endpoints
 
 findEndpoint = (path) => {
   
+  if(path.endsWith('/')) path = path.substring(0, path.length - 1)
+  
   for(let i = 0; i < endpoints.length; i++){
     if(endpoints[i]._id === path) return endpoints[i]
   }
 
+  return null
+
 }
+
+
 
 exports.initEndpoints = (ends, application, handlers) => {
   
@@ -45,14 +51,17 @@ exports.initEndpoints = (ends, application, handlers) => {
   }
 
 }
+
+
 exports.handlers = {
   
   getHandler: async (req, res) => {
-    
-    let endpoint = findEndpoint(req.url.replace(`/${req.params.ID}`,""))
-    
+      
     try { 
-      let resource = await lib.get(endpoint.resource, req.params.ID)
+      let endpoint = findEndpoint(req.url.replace(`/${req.params.ID}`,""))
+      let collection = lib.urlToCollection(endpoint._id)
+      let resource = await lib.get(collection, endpoint.identifier, req.params.ID)
+      if(resource === null) return res.sendStatus(404)
       res.send(resource)
     } catch(error) {
       res.status(400).send(error)
@@ -62,10 +71,10 @@ exports.handlers = {
 
   postHandler: async (req, res) => {
     
-    let endpoint = findEndpoint(req.url)
-    
     try {
-      let resource = await lib.post(endpoint.resource, req.body)
+      let endpoint = findEndpoint(req.url)
+      let collection = lib.urlToCollection(endpoint._id)
+      let resource = await lib.post(collection, req.body)
       res.send(resource)
     } catch(error) {
       res.status(400).send(error)
@@ -74,28 +83,40 @@ exports.handlers = {
   },
   
   putHandler: async (req, res) =>  {
-  
-    let endpoint = findEndpoint(req.url.replace(`/${req.params.ID}`,""))
     
     try {
-      let resource = await lib.put(endpoint.resource, req.body, req.params.ID)
+      let endpoint = findEndpoint(req.url.replace(`/${req.params.ID}`,""))
+      let collection = lib.urlToCollection(endpoint._id)
+      let resource = await lib.put(collection, req.body, endpoint.identifier, req.params.ID)
+      if(resource === null) return res.sendStatus(404)
       res.send(resource)
     } catch(error) {
-      res.send(error)
+      res.status(400).send(error)
     }
   
   },
 
   deleteHandler: async (req, res) => {
-  
-    let endpoint = findEndpoint(req.url.replace(`/${req.params.ID}`,""))
     
     try {
-      await lib.delete(endpoint.resource, req.params.ID)
-      res.sendStatus(200)
+      let endpoint = findEndpoint(req.url.replace(`/${req.params.ID}`,""))
+      let collection = lib.urlToCollection(endpoint._id)
+      let deleted = await lib.delete(collection, endpoint.identifier, req.params.ID)
+      if(deleted) return res.sendStatus(200)
+      else return res.sendStatus(404)
     } catch(error) {
       res.status(400).send(error)
     }
   
+  }
+}
+
+exports.rootController = async (req, res) => {
+  
+  try {
+    let paths = await lib.listEndPoints();
+    res.send(paths)
+  } catch(error) {
+    res.send(error)
   }
 }

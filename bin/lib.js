@@ -1,13 +1,14 @@
 let db = require('./db')
 
-findOne = (collection, id) => {
+findOne = (collection, identifier, id) => {
   
   return new Promise((resolve, reject) => {
-    
-    db.get().collection(collection).findOne({_id: id}, (err, result) => {
-      
-      
 
+    let query = {}
+    query[identifier] = id
+
+    db.get().collection(collection).findOne(query, { fields: { _id: 0 } }, (err, result) => {
+      
       if(err) reject(err)
       
       else resolve(result)
@@ -22,7 +23,7 @@ find = (collection) => {
   
   return new Promise((resolve, reject) => {
     
-    db.get().collection(collection).find({}).toArray((err, result) => {
+    db.get().collection(collection).find({}, { fields: { _id: 0 } }).toArray((err, result) => {
       
       if(err) reject(err)
       
@@ -41,7 +42,7 @@ create = (collection, object) => {
     db.get().collection(collection).insert(object, (err)=>{
 
       
-      if(err) reject(err)
+      if(err) reject(errorHandler(err))
       else resolve(object)
       
     })
@@ -50,17 +51,16 @@ create = (collection, object) => {
   
 }
 
-update = (collection, data, id) => {
+update = (collection, data, identifier, id) => {
 
   return new Promise( (resolve, reject) => {
     
-    db.get().collection(collection).update({
-      _id: id
-    },{
-      $set:data
-    },async(err) => {
+    let query = {}
+    query[identifier] = id
+
+    db.get().collection(collection).update(query, { $set:data }, async (err) => {
       
-      if(err) reject(err)
+      if(err) reject(errorHandler(err))
       
       else{  
         let resource = await findOne(collection, id)
@@ -73,37 +73,65 @@ update = (collection, data, id) => {
 
 }
 
-remove = (collection, id) => {
+remove = (collection, identifier, id) => {
 
   return new Promise((resolve, reject) => {
     
-    db.get().collection(collection).remove({
-      _id: id
-    },(err) => {
+    let query = {}
+    query[identifier] = id
+
+    db.get().collection(collection).deleteOne(query, (err, response) => {
       
       if(err) reject(err)
       
-      else resolve()
-    
+      else {
+        if(response.result.n > 0) resolve(true)
+        else resolve(false)
+      }
+        
     })
       
   })
 
 }
 
-exports.get = (resource, id) => {
+errorHandler = (error) => {
   
-  if(id) return findOne(resource, id)
+  let response = {
+    message: ""
+  }
+  
+  if(error.code === 11000) { response.message = "Index already exists" 
+    return response } 
+  else if(error.code === 9) { response.message = "Body is empty" 
+    return response }
+  else { 
+    response.message = "unknown error" 
+    response.attachment = error
+    return response
+  }
+}
+
+
+
+exports.get = (resource, identifier ,id) => {
+  
+  if(id) return findOne(resource, identifier, id)
 
   else return find(resource)
 
 }
 
 exports.post = (resource, document) => create(resource, document)
-exports.put = (resource, document, id) => update(resource, document, id)
-exports.delete = (resource, id) => remove(resource, id)
+exports.put = (resource, document, identifier, id) => update(resource, document, identifier, id)
+exports.delete = (resource, identifier, id) => remove(resource, identifier, id)
+
+exports.listEndPoints = () => find("restAtHome")
+
+exports.urlToCollection = (url) => url.replace(/\//g, '_')
 
 exports.parseConfig = () => {
+  //sync is ok as config is read once.
   let raw = require('fs').readFileSync('/etc/restAtHome/config')
   return JSON.parse(raw)
 }
