@@ -1,6 +1,6 @@
 # restAtHome
 
-GUI controllet JSON based REST API for simple projects.
+CLI configurable JSON based REST API for simple projects.
 
 **Powered by**
 
@@ -20,10 +20,29 @@ by wget
 `sh -c "$(wget https://raw.githubusercontent.com/ErlingWis/restAtHome/master/install/install.sh -O -)"`
 
 ## Usage
+### fast
+```
+$ restCli add /weather weather -a
+$ sudo systemctl enable restAtHome 
+$ sudo systemctl start restAtHome
+```
+now you can post some weather reports in JSON to your API and access them again.
+```BASH
+curl -X POST \
+localhost:3000/weather \
+-H 'content-type: application/json' \
+-d '{\
+"_id":"2018/05/06T14:51:10.401",\
+"temperature":24,\
+"unit":"celcius"\
+}'
+```
+
+`curl localhost:3000/weather`
 ### start and stop
 
 The API can be controlled with systemd as a service
-```
+```BASH
 # Start API 
 systemctl start restAtHome 
 
