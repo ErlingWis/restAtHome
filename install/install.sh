@@ -36,9 +36,13 @@ echo 'Extracting runnables to /opt/restAtHome'
 sudo cp -r $ROOT/bin /opt/restAtHome
 sudo chown $USER:$USER /opt/restAtHome
 
-echo 'installing dependencies'
+echo 'Installing dependencies'
 cd /opt/restAtHome
 #install dependencies
 npm install /opt/restAtHome > /dev/null 2>&1
 
 rm -rf $ROOT
+
+echo "Booting up and checking status:"
+sudo systemctl start restAtHome
+systemctl show -p SubState --value NetworkManager
