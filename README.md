@@ -118,7 +118,7 @@ localhost:3000/weather \
 ```
 ### GET JSON object with curl
 `curl localhost:3000/weather/1538499323`
-### GET all objects in an enpoint with curl
+### GET all objects with curl
 `curl localhost:3000/weather`
 ### PUT an object with curl
 ```
