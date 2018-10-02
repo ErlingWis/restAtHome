@@ -68,7 +68,8 @@ systemctl disable restAtHome
 # check status
 systemctl status restAtHome
 ```
-#### EXAMPLE
+## Examples
+### Config
 Editing the config file to:
 ```
 api:
@@ -98,7 +99,7 @@ endpoints:
 
 adds the following endpoint to your API `<ip|hostname>:3000/weather` with full CRUD functionality.
 
-### Example with json file and curl
+### Create jsonobject with curl
 **car.json**
 ```
 { 
