@@ -97,24 +97,35 @@ endpoints:
 ```
 
 
-adds the following endpoint to your API `<ip|hostname>:3000/weather` with full CRUD functionality.
+adds the following endpoint to your API `localhost:3000/weather` with full CRUD functionality.
 
-### Create jsonobject with curl
-**car.json**
+### POST json file with curl
+**weather.json**
 ```
 { 
-  "_id": "EK12345",
-  "color": "blue",
-  "engine": "electric",
-  "owner": "Stolt Jensenberg",
-  "type": "Tesla",
-  "model": "sedan"
+  "datetime": 1538499323,
+  "temperature": 21,
+  "scale": "Celcius",
+  "report": "windy"
 }
 ```
 **POST with curl**
 ```
 curl -X POST \
-localhost:3000/car \
+localhost:3000/weather \
 -H 'Content-Type: Application/JSON' \
 -d @car.json
 ```
+### GET JSON object with curl
+`curl localhost:3000/weather/1538499323`
+### GET all objects in an enpoint with curl
+`curl localhost:3000/weather`
+### PUT an object with curl
+```
+curl -X PUT \
+localhost:3000/weather/1538499323 \
+-H 'Content-Type: Application/JSON' \
+-d '{"report":"sunny"}' \
+```
+### DELETE an object with curl
+`curl -X DELETE localhost:3000/weather/1538499323`
