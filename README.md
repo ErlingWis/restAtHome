@@ -114,7 +114,7 @@ adds the following endpoint to your API `localhost:3000/weather` with full CRUD 
 curl -X POST \
 localhost:3000/weather \
 -H 'Content-Type: Application/JSON' \
--d @car.json
+-d @weather.json
 ```
 ### GET JSON object with curl
 `curl localhost:3000/weather/1538499323`
