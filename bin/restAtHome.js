@@ -1,28 +1,26 @@
-let express = require('express')
-let app = express()
-let fs = require('fs')
-let lib = require('./lib')
-let db = require('./db')
-let controllers = require('./controllers')
+const express = require('express')
+const configHandler = require('./configHandler')
+const endpointsHandler = require('./endpointsHandler')
+const db = require('./db')
 
-app.use(require('helmet')())
-app.use(require('morgan')('tiny'))
-app.use(require('body-parser').json())
-//app.use('/', controllers.rootController)
 
 start = async () => {
   
   try{
-    
-    let config = lib.parseConfig()
-
-    await db.connect(config.database)
-    let endpoints = await db.getEndpoints()
-    
-    controllers.initEndpoints(endpoints, app, controllers.handlers)
+    const configPath = "/etc/restAtHome/restAtHome.conf"
+    const config = new configHandler(configPath)
+    const app = express()   
     
     if(config.api.cors === true) app.use(require('cors')()) 
+    app.use(require('helmet')())
+    app.use(require('morgan')('tiny'))
+    app.use(require('body-parser').json())
+    
+    const database = new db(config.database)
+    await database.connect()
 
+    const controller = new endpointsHandler(config.endpoints, database).init(app)
+        
     app.listen(config.api.port)
     
   } catch(error) {

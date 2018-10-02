@@ -25,23 +25,20 @@ echo 'installing service file at /etc/systemd/system/restAtHome.service'
 # install service file
 sudo cp $ROOT/install/restAtHome.service /etc/systemd/system
 
-echo 'installing config file at /etc/restAtHome/config'
+echo 'installing config file at /etc/restAtHome/restAtHome.conf'
 #install config file
 sudo mkdir -p /etc/restAtHome
-sudo cp $ROOT/install/config /etc/restAtHome
+sudo cp $ROOT/install/restAtHome.conf /etc/restAtHome
 
 
 echo 'Extracting runnables to /opt/restAtHome'
 #extract runnables to /opt
 sudo cp -r $ROOT/bin /opt/restAtHome
+sudo chown $USER:$USER /opt/restAtHome
+
 echo 'installing dependencies'
 cd /opt/restAtHome
 #install dependencies
-sudo npm install /opt/restAtHome
+npm install /opt/restAtHome > /dev/null 2>&1
 
-echo 'adding restCli to /usr/local/bin/restCli'
-#add restCli to PATH
-sudo ln -s /opt/restAtHome/restCli /usr/local/bin/restCli
-
-echo 'removing repo'
 rm -rf $ROOT
