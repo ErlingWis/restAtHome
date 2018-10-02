@@ -2,6 +2,8 @@
 
 simple configurable JSON based REST API for when you just need to store some JSON in a database.
 
+Tested with v8.12.0
+
 **Powered by**
 
 [Express](https://expressjs.com/)
@@ -9,15 +11,20 @@ simple configurable JSON based REST API for when you just need to store some JSO
 [MongoDB](https://www.mongodb.com/)
 
 ## Install
+### dependencies
+You need to install nodejs and mongodb.
+### install by script
+
+check it out here before downloading: [LINK](https://github.com/ErlingWis/restAtHome/blob/master/install/install.sh)
 
 by cURL
 
 `sh -c "$(curl -fsSL https://raw.githubusercontent.com/ErlingWis/restAtHome/master/install/install.sh)"`
 
-
 by wget
 
 `sh -c "$(wget https://raw.githubusercontent.com/ErlingWis/restAtHome/master/install/install.sh -O -)"`
+
 
 ## Usage
 ### config
