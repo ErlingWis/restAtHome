@@ -25,7 +25,7 @@ class EndpointHandler {
         app.get(end.path + '/:ID', methodsHandler(this, "GET"))
       } else {
         app.get(end.path, methodsHandler(this, "NOT_SUPPORTED"))
-        app.get(end.path, methodsHandler(this, "NOT_SUPPORTED"))
+        app.get(end.path + "/:ID", methodsHandler(this, "NOT_SUPPORTED"))
       }
       if(end.methods.includes('POST')) app.post(end.path, methodsHandler(this, "POST"))
       else app.post(end.path, methodsHandler(this, "NOT_SUPPORTED"))
@@ -44,9 +44,7 @@ class EndpointHandler {
       m = Math.floor((i + k)/2)
     }
     
-    if(this.endpoints[m].path !== path) {
-      return null
-    } else return this.endpoints[m]
+    return this.endpoints[m].path !== path ? null : this.endpoints[m]
   }
 }
 
