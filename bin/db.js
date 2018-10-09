@@ -34,9 +34,14 @@ class DatabaseHandler {
     })
   }
   
-  find(collection) {
+  find(collection, page=0) {
+    page = parseInt(page)
     return new Promise((resolve, reject) => {
-      this.db.collection(collection).find({}).toArray((err, result) => {
+      let fromIndex = page * 100, toIndex = (page+1) * 100
+      this.db.collection(collection).find({})
+      .limit(toIndex - fromIndex)
+      .skip(fromIndex)
+      .toArray((err, result) => {
         if(err) reject(this.errorHandler(err))
         else resolve(result)    
       })
@@ -95,9 +100,9 @@ class DatabaseHandler {
     }
   }
 
-  get(resource, id) {
+  get(resource, id, page) {
     if(id) return this.findOne(resource, id)
-    else return this.find(resource)
+    else return this.find(resource, page)
   }
   
   post(resource, document) { return this.create(resource, document) }

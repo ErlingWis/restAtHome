@@ -8,6 +8,9 @@ User=root
 WorkingDirectory=/opt/restAtHome/
 ExecStart=/usr/bin/node /opt/restAtHome/restAtHome.js
 Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=RestAtHome
 
 [Install]
 WantedBy=multi-user.target

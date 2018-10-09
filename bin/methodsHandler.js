@@ -18,12 +18,20 @@ function exportObject(identifier, object) {
   }
 }
 
+function strip_url(req) {
+  let s1 = req.url.replace(`/${req.params.ID}`,"")
+  let s2 = s1.replace(/\?.*$/, "")
+  return s2
+}
+
 function methods(endpointsHandler, method) {
  
  if ( method === "GET" ) return async (req, res) => {
     try {
-      let end = endpointsHandler.searchEndpoints(req.url.replace(`/${req.params.ID}`,""))
-      let resource = await endpointsHandler.db.get(end.collection, req.params.ID)
+      let helper = strip_url(req)
+      let end = endpointsHandler.searchEndpoints(helper)
+    
+      let resource = await endpointsHandler.db.get(end.collection, req.params.ID, req.query.page)
       return resource === null ? res.sendStatus(404) : res.send(exportObject(end.identifier, resource))
     } catch(e) {
       return res.send(e)
