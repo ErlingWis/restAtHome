@@ -1,3 +1,5 @@
+const parser = require('./parseUtil')
+
 function importObject(identifier, object) {
   object._id = object[identifier]
   delete object[identifier]
@@ -30,7 +32,8 @@ function methods(endpointsHandler, method) {
     try {
       let helper = strip_url(req)
       let end = endpointsHandler.searchEndpoints(helper)
-    
+      if(parser.IsNumeric(req.params.ID)) req.params.ID = parser.parseNumber(req.params.ID)
+      console.log(req.params.ID)
       let resource = await endpointsHandler.db.get(end.collection, req.params.ID, req.query.page)
       return resource === null ? res.sendStatus(404) : res.send(exportObject(end.identifier, resource))
     } catch(e) {
